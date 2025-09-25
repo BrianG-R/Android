@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AResultado">
+
+
+    <!-- EditText para mostrar el nombre de la foto -->
+    <EditText
+        android:id="@+id/ETNombreFoto"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Nombre Foto"
+        android:textSize="18sp"
+        android:padding="16dp"
+        android:editable="false"
+        app:layout_constraintBottom_toTopOf="@id/imageView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.35" />
+
+    <!-- ImageView para mostrar la imagen -->
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ETNombreFoto"
+        app:layout_constraintVertical_bias="0.35"
+        android:contentDescription="Imagen de la foto"
+        android:scaleType="centerCrop" />
+</androidx.constraintlayout.widget.ConstraintLayout>
