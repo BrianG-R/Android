@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +19,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+
 
 
 public class MainActivity extends AppCompatActivity {
@@ -27,6 +33,12 @@ public class MainActivity extends AppCompatActivity {
     private Button btnAceptar;
     private Button btnDescargar;
     private ProgressBar progressBar;
+    private SensorManager sensorManager;
+    private Sensor rotationSensor;
+    private SensorEventListener rotationListener;
+    private TextView tvOrientacion;
+
+
     private static final String TAG = "MainActivity";
 
 
@@ -41,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         btnDescargar = findViewById(R.id.btnDescargar);
         progressBar = findViewById(R.id.progressBar);  // Inicializa el ProgressBar
+        tvOrientacion = findViewById(R.id.tvOrientacion);
 
         // Establecer una imagen predeterminada
         imageView.setImageResource(R.drawable.hol1);
@@ -73,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         // Reemplazar con la URL de tu imagen
-                        String imageUrl = "https://images.pexels.com/photos/34094241/pexels-photo-34094241.jpeg";
+                        String imageUrl = "https://tse1.mm.bing.net/th/id/OIP.IXZgKnnp3Iehk72cZqlxsQHaKh?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3";
                         Log.d(TAG, "Iniciando descarga de la imagen desde: " + imageUrl);
                         final Bitmap bitmap = loadImageFromNetwork(imageUrl);
 
@@ -99,7 +112,66 @@ public class MainActivity extends AppCompatActivity {
                 }).start();  // Iniciar el hilo
             }
         });
+
+        // Inicializar el SensorManager y el sensor de rotación
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+
+        if (rotationSensor == null) {
+            Toast.makeText(this, "Sensor de rotación no disponible", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Sensor de rotación no disponible en este dispositivo.");
+        } else {
+            rotationListener = new SensorEventListener() {
+
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+                        float[] rotationMatrix = new float[9];
+                        SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+
+                        float[] orientations = new float[3];
+                        SensorManager.getOrientation(rotationMatrix, orientations);
+
+                        // Convertir radianes a grados
+                        float azimuth = (float) Math.toDegrees(orientations[0]);
+                        float pitch = (float) Math.toDegrees(orientations[1]);
+                        float roll = (float) Math.toDegrees(orientations[2]);
+
+                        String orientationMsg = String.format("Azimuth: %.1f°\nPitch: %.1f°\nRoll: %.1f°", azimuth, pitch, roll);
+
+                        Log.d(TAG, "Orientación del dispositivo: " + orientationMsg);
+
+                        // Actualizar el TextView en pantalla
+                        tvOrientacion.setText("Cambio de orientación:\n" + orientationMsg);
+                    }
+                }
+
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                    // No es necesario implementarlo por ahora
+                }
+            };
+        }
+
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (rotationSensor != null && rotationListener != null) {
+            sensorManager.registerListener(rotationListener, rotationSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (rotationListener != null) {
+            sensorManager.unregisterListener(rotationListener);
+        }
+    }
+
 
 
     private Bitmap loadImageFromNetwork(String urlString) {
