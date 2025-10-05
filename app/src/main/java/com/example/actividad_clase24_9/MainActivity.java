@@ -1,8 +1,11 @@
 package com.example.actividad_clase24_9;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +17,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +29,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -37,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private Sensor rotationSensor;
     private SensorEventListener rotationListener;
     private TextView tvOrientacion;
+    private Button btnUbiActual, btnUbiFija;
 
 
     private static final String TAG = "MainActivity";
@@ -54,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
         btnDescargar = findViewById(R.id.btnDescargar);
         progressBar = findViewById(R.id.progressBar);  // Inicializa el ProgressBar
         tvOrientacion = findViewById(R.id.tvOrientacion);
+        btnUbiActual = findViewById(R.id.btnUbiActual);
+        btnUbiFija = findViewById(R.id.btnUbiFija);
 
         // Establecer una imagen predeterminada
         imageView.setImageResource(R.drawable.hol1);
@@ -112,6 +122,59 @@ public class MainActivity extends AppCompatActivity {
                 }).start();  // Iniciar el hilo
             }
         });
+        btnUbiActual.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Verificar permisos de ubicación
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
+                    return;
+                }
+
+                // Obtener la ubicación actual usando FusedLocationProviderClient
+                FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
+                fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+                    if (location != null) {
+                        double lat = location.getLatitude();
+                        double lng = location.getLongitude();
+                        String label = "Mi ubicación exacta";
+
+                        // Abrir Google Maps centrado en las coordenadas exactas
+                        Uri gmmIntentUri = Uri.parse("geo:" + lat + "," + lng + "?q="
+                                + lat + "," + lng + "(" + Uri.encode(label) + ")");
+                        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                        mapIntent.setPackage("com.google.android.apps.maps");
+
+                        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                            startActivity(mapIntent);
+                        } else {
+                            Toast.makeText(MainActivity.this, "No se encontró Google Maps", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(MainActivity.this, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+
+        btnUbiFija.setOnClickListener(v -> {
+            double lat = -30.604565518293043;
+            double lng = -71.20474371440591;
+            String label = "Instituto Santo Tomás Ovalle";
+            Uri gmmIntentUri = Uri.parse("geo:" + lat + "," + lng + "?q="
+                    + lat + "," + lng + "(" + Uri.encode(label) + ")");
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+
+            if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                startActivity(mapIntent);
+            } else {
+                Toast.makeText(MainActivity.this, "No se encontró Google Maps", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
         // Inicializar el SensorManager y el sensor de rotación
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);

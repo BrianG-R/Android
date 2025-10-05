@@ -8,8 +8,8 @@
     tools:context=".MainActivity">
 
     <LinearLayout
-        android:layout_width="410dp"
-        android:layout_height="623dp"
+        android:layout_width="417dp"
+        android:layout_height="726dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -54,23 +54,30 @@
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/tvOrientacion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Orientación del dispositivo"
-            android:textSize="16sp"
             android:padding="16dp"
-            android:textColor="#000000" />
+            android:text="Orientación del dispositivo"
+            android:textColor="#000000"
+            android:textSize="16sp" />
+
 
         <Button
-            android:id="@+id/bolita"
+            android:id="@+id/btnUbiActual"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Button" />
+            android:text="Mi ubicación actual" />
+
+        <Button
+            android:id="@+id/btnUbiFija"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ubicación fija" />
 
 
     </LinearLayout>
